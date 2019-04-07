@@ -26,6 +26,11 @@ from talk.models import (
     Track,
     Vote,
     TalkPublishedSpeaker,
+    AttendeeVote,
+    AttendeeFeedback,
+    SessionReservation,
+    TALK_STATUS_PUBLISHED,
+    TALK_STATUS_DRAFT,
 )
 
 User = get_user_model()
@@ -154,6 +159,7 @@ class TalkTest(TestCase):
         self.assertEqual(talk.published_speakers.count(), 1)
         self.assertEqual(talk.published_speakers.all()[0], published_speaker)
         self.assertEqual(talk.track, track)
+        self.assertEqual(talk.status, TALK_STATUS_PUBLISHED)
 
     def test_is_limited_default(self):
         talk = Talk.objects.create(
@@ -235,6 +241,12 @@ class TalkTest(TestCase):
         TalkSlot.objects.create(talk=talk, room=room, time=time_slot)
         talk.refresh_from_db()
         self.assertTrue(talk.is_feedback_allowed)
+
+    def test_default_status(self):
+        talk = Talk.objects.create(
+            title="Test", abstract="Test abstract", event=self.event
+        )
+        self.assertEqual(talk.status, TALK_STATUS_DRAFT)
 
 
 class TalkDraftSpeakerRemovalPreventionTest(TestCase):

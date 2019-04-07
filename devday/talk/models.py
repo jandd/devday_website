@@ -1,6 +1,7 @@
 import logging
 from datetime import timedelta
 
+from attendee.models import Attendee
 from django.conf import settings
 from django.core import signing
 from django.core.exceptions import ValidationError
@@ -8,6 +9,7 @@ from django.db import models
 from django.db.models.signals import m2m_changed, pre_delete, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import slugify
 from django.utils.translation import pgettext_lazy
 from django.utils.translation import ugettext_lazy as _
@@ -19,6 +21,17 @@ from ordered_model.models import OrderedModel
 from psqlextra.manager import PostgresManager
 from speaker import models as speaker_models
 from speaker.models import PublishedSpeaker, Speaker
+
+TALK_STATUS_DRAFT = 1
+TALK_STATUS_SELECTED = 2
+TALK_STATUS_CONFIRMED = 3
+TALK_STATUS_PUBLISHED = 4
+TALK_STATUS_CHOICES = (
+    (TALK_STATUS_DRAFT, _("Draft")),
+    (TALK_STATUS_SELECTED, _("Selected")),
+    (TALK_STATUS_CONFIRMED, _("Confirmed")),
+    (TALK_STATUS_PUBLISHED, _("Published")),
+)
 
 log = logging.getLogger(__name__)
 
@@ -90,6 +103,9 @@ class Talk(models.Model):
         verbose_name=_("Spots"),
         help_text=_("Maximum number of attendees for this talk"),
     )
+    status = models.PositiveSmallIntegerField(
+        verbose_name=_("Status"), choices=TALK_STATUS_CHOICES, default=TALK_STATUS_DRAFT
+    )
 
     objects = TalkManager()
     reservable = ReservableTalkManager()
@@ -108,6 +124,7 @@ class Talk(models.Model):
                 published_speaker=published_speaker,
                 order=draft_speaker.order,
             )
+        self.status = TALK_STATUS_PUBLISHED
         self.save()
 
     def save(
