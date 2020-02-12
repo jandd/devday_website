@@ -1,5 +1,6 @@
 from rest_framework import serializers, viewsets
 from rest_framework.relations import HyperlinkedRelatedField, SlugRelatedField
+
 from speaker.models import PublishedSpeaker
 
 
@@ -22,12 +23,11 @@ class PublishedSpeakerSerializer(serializers.ModelSerializer):
             "thumbnail",
             "talk_set",
         ]
-        extra_kwargs = {"url": {"view_name": "speaker-detail", "lookup_field": "slug"}}
+        extra_kwargs = {"url": {"view_name": "speaker-detail"}}
 
 
 class PublishedSpeakerViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PublishedSpeakerSerializer
-    lookup_field = "slug"
 
     def get_queryset(self):
         qs = PublishedSpeaker.objects.order_by("name")

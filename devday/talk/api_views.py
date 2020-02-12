@@ -1,12 +1,13 @@
-from rest_framework import filters, serializers, viewsets
+from rest_framework import serializers, viewsets
 from rest_framework.relations import HyperlinkedRelatedField, SlugRelatedField
+
 from talk.models import Talk
 
 
 class SessionSerializer(serializers.ModelSerializer):
     event = SlugRelatedField(slug_field="slug", read_only=True)
     published_speaker = HyperlinkedRelatedField(
-        read_only=True, view_name="speaker-detail", lookup_field="slug"
+        read_only=True, view_name="speaker-detail"
     )
 
     class Meta:
