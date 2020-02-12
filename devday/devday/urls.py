@@ -9,6 +9,7 @@ from django.views.static import serve as serve_static
 
 from devday.views import SendEmailView, exception_test_view
 from rest_framework import routers
+from speaker.api_views import PublishedSpeakerViewSet
 from talk.api_views import SessionViewSet
 from twitterfeed.views import TwitterwallView
 
@@ -16,6 +17,7 @@ admin.autodiscover()
 
 router = routers.DefaultRouter()
 router.register(r"sessions", SessionViewSet)
+router.register(r"speakers", PublishedSpeakerViewSet, basename="speaker")
 
 urlpatterns = [
     url(r"^api/", include(router.urls)),
