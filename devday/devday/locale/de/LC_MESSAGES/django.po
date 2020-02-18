@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: devday\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-02-17 14:15+0000\n"
-"PO-Revision-Date: 2020-02-17 15:19+0100\n"
+"PO-Revision-Date: 2020-02-18 12:51+0100\n"
 "Last-Translator: Jan Dittberner <jan.dittberner@t-systems.com>\n"
 "Language-Team: Jan Dittberner <jan.dittberner@t-systems.com>\n"
 "Language: de\n"
@@ -125,7 +125,7 @@ msgstr "Mein Passwort zurücksetzen"
 
 #: devday/forms.py:76
 msgid "invalid email address {}"
-msgstr "ungültige E-Mailadresse {}"
+msgstr "ungültige E-Mail-Adresse {}"
 
 #: devday/forms.py:84
 msgid "Recipient Group"
@@ -137,7 +137,7 @@ msgstr "Empfängerliste"
 
 #: devday/forms.py:88
 msgid "a list of recipient email addresses (one address on each line)"
-msgstr "Eine Liste von Empfänger-E-Mailadressen (eine Adresse pro Zeile)"
+msgstr "Eine Liste von Empfänger-E-Mail-Adressen (eine Adresse pro Zeile)"
 
 #: devday/forms.py:90 devday/forms.py:108
 msgid "Email Subject"
@@ -566,7 +566,7 @@ msgstr "Angenommene SpeakerIn"
 
 #: devday/views.py:158
 msgid "email addresses from uploaded file"
-msgstr "E-Mailadressen aus hochgeladener Datei"
+msgstr "E-Mail-Adressen aus hochgeladener Datei"
 
 #: devday/views.py:169
 msgid "Successfully sent message to {} {} recipients"
