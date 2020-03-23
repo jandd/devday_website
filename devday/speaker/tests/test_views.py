@@ -8,7 +8,7 @@ from speaker.forms import CreateSpeakerForm, UserSpeakerPortraitForm
 from speaker.models import PublishedSpeaker, Speaker
 from speaker.tests import speaker_testutils
 from speaker.tests.speaker_testutils import TemporaryMediaTestCase
-from talk.models import Talk, Track
+from talk.models import Talk, TalkPublishedSpeaker, Track
 
 
 class TestCreateSpeakerView(TestCase):
@@ -109,6 +109,22 @@ class TestUserSpeakerProfileView(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["speaker"], self.speaker)
+
+    def test_talk_on_speaker_profile(self):
+        event = event_testutils.create_test_event()
+        talk = Talk.objects.create(
+            draft_speaker=self.speaker,
+            title="Test Talk",
+            abstract="Test abstract",
+            remarks="",
+            event=event,
+        )
+        self.client.login(username=self.email, password=self.password)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["speaker"], self.speaker)
+        self.assertIn("sessions", response.context)
+        self.assertIn(talk, response.context["sessions"])
 
 
 class TestUserSpeakerPortraitUploadView(TemporaryMediaTestCase):
@@ -312,11 +328,14 @@ class PublishedSpeakerPublicView(TemporaryMediaTestCase):
         )
         self.track = Track.objects.create(event=self.event, name="Track 1")
         self.talk = Talk.objects.create(
-            published_speaker=self.published_speaker,
+            draft_speaker=self.speaker,
             title="Something important",
             abstract="I have something important to say",
             track=self.track,
             event=self.event,
+        )
+        TalkPublishedSpeaker.objects.create(
+            talk=self.talk, published_speaker=self.published_speaker, order=1
         )
         self.url = "/{}/speaker/{}/".format(
             self.event.slug, self.published_speaker.slug
@@ -328,12 +347,15 @@ class PublishedSpeakerPublicView(TemporaryMediaTestCase):
         self.assertTemplateUsed(response, "speaker/publishedspeaker_detail.html")
 
     def test_speaker_with_two_talks(self):
-        Talk.objects.create(
-            published_speaker=self.published_speaker,
+        talk = Talk.objects.create(
+            draft_speaker=self.speaker,
             title="Some other talk",
             abstract="Been there, done that",
             event=self.event,
             track=self.track,
+        )
+        TalkPublishedSpeaker.objects.create(
+            talk=talk, published_speaker=self.published_speaker, order=1
         )
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
@@ -352,12 +374,16 @@ class PublishedSpeakerPublicView(TemporaryMediaTestCase):
 
     def test_context_has_all_talks(self):
         talk2 = Talk.objects.create(
-            published_speaker=self.published_speaker,
+            draft_speaker=self.speaker,
             title="Some other talk",
             abstract="Been there, done that",
             track=self.track,
             event=self.event,
         )
+        TalkPublishedSpeaker.objects.create(
+            talk=talk2, published_speaker=self.published_speaker, order=1
+        )
+
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertIn("talks", response.context)
@@ -393,27 +419,41 @@ class TestPublishedSpeakerListView(TestCase):
 
     def test_get_queryset_with_talks(self):
         track = Track.objects.create(name="Hollow talk")
-        Talk.objects.create(
+        dummy_speaker, _, _ = speaker_testutils.create_test_speaker()
+        talk1 = Talk.objects.create(
+            draft_speaker=dummy_speaker,
             title="Talk 1",
             abstract="Abstract 1",
-            published_speaker=self.speakers[0],
             event=self.event,
             track=track,
         )
-        Talk.objects.create(
+        TalkPublishedSpeaker.objects.create(
+            talk=talk1, published_speaker=self.speakers[0], order=1
+        )
+        talk1.draft_speakers.clear()
+        talk2 = Talk.objects.create(
+            draft_speaker=dummy_speaker,
             title="Talk 2",
             abstract="Abstract 2",
-            published_speaker=self.speakers[0],
             event=self.event,
             track=track,
         )
-        Talk.objects.create(
+        TalkPublishedSpeaker.objects.create(
+            talk=talk2, published_speaker=self.speakers[0], order=1
+        )
+        talk2.draft_speakers.clear()
+        talk3 = Talk.objects.create(
+            draft_speaker=dummy_speaker,
             title="Talk 3",
             abstract="Abstract 3",
-            published_speaker=self.speakers[1],
             event=self.event,
             track=track,
         )
+        TalkPublishedSpeaker.objects.create(
+            talk=talk3, published_speaker=self.speakers[1], order=1
+        )
+        talk3.draft_speakers.clear()
+        dummy_speaker.delete()
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         speaker_list = response.context["publishedspeaker_list"]

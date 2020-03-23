@@ -12,12 +12,12 @@ class SessionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Talk
-        fields = ["url", "title", "abstract", "published_speaker", "event"]
+        fields = ["url", "title", "abstract", "published_speakers", "event"]
         extra_kwargs = {"url": {"lookup_field": "slug"}}
 
 
 class SessionViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Talk.objects.filter(published_speaker__isnull=False).order_by(
+    queryset = Talk.objects.filter(published_speakers__isnull=False).order_by(
         "-event__start_time", "title", "published_speaker__name"
     )
     serializer_class = SessionSerializer
