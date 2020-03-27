@@ -1,13 +1,12 @@
 from rest_framework import serializers, viewsets
 from rest_framework.relations import HyperlinkedRelatedField, SlugRelatedField
-
 from talk.models import Talk
 
 
 class SessionSerializer(serializers.ModelSerializer):
     event = SlugRelatedField(slug_field="slug", read_only=True)
-    published_speaker = HyperlinkedRelatedField(
-        read_only=True, view_name="speaker-detail"
+    published_speakers = HyperlinkedRelatedField(
+        many=True, read_only=True, view_name="speaker-detail"
     )
 
     class Meta:
@@ -18,7 +17,7 @@ class SessionSerializer(serializers.ModelSerializer):
 
 class SessionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Talk.objects.filter(published_speakers__isnull=False).order_by(
-        "-event__start_time", "title", "published_speaker__name"
+        "-event__start_time", "title", "published_speakers__name"
     )
     serializer_class = SessionSerializer
     lookup_field = "slug"
