@@ -6,7 +6,6 @@ from django.core import signing
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.test import TestCase, override_settings
 from django.utils import timezone
-from django.utils.translation import ugettext as _
 
 from attendee.models import Attendee
 from attendee.tests import attendee_testutils
@@ -14,6 +13,8 @@ from event.tests.event_testutils import create_test_event
 from speaker.models import PublishedSpeaker, Speaker
 from speaker.tests import speaker_testutils
 from talk.models import (
+    TALK_STATUS_DRAFT,
+    TALK_STATUS_PUBLISHED,
     AttendeeFeedback,
     AttendeeVote,
     Room,
@@ -21,16 +22,11 @@ from talk.models import (
     Talk,
     TalkComment,
     TalkDraftSpeaker,
+    TalkPublishedSpeaker,
     TalkSlot,
     TimeSlot,
     Track,
     Vote,
-    TalkPublishedSpeaker,
-    AttendeeVote,
-    AttendeeFeedback,
-    SessionReservation,
-    TALK_STATUS_PUBLISHED,
-    TALK_STATUS_DRAFT,
 )
 
 User = get_user_model()
@@ -244,7 +240,10 @@ class TalkTest(TestCase):
 
     def test_default_status(self):
         talk = Talk.objects.create(
-            title="Test", abstract="Test abstract", event=self.event
+            draft_speaker=self.speaker,
+            title="Test",
+            abstract="Test abstract",
+            event=self.event,
         )
         self.assertEqual(talk.status, TALK_STATUS_DRAFT)
 
