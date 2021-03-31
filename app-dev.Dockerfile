@@ -1,4 +1,4 @@
-FROM devdaydresden/devday_website_python_base
+FROM devdaydresden/devday_website_python_base:latest_dev
 MAINTAINER Jan Dittberner <jan.dittberner@t-systems.com>
 LABEL vendor="T-Systems Multimedia Solutions GmbH"
 
@@ -18,6 +18,7 @@ RUN \
     apt-get update \
  && apt-get install --no-install-recommends -y \
     build-essential \
+    gettext \
     libffi-dev \
     libjpeg-dev \
     libpng-dev \
